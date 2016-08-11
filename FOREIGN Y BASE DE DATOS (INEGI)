@@ -1,0 +1,6 @@
+####impoprtar base de datos ####
+#### para importar base de datos se usa la funciópn foreign #####
+install.packages("foreign")
+require (foreign)
+sociodem <- read.dbf ("C://Users//SALA-C15//Desktop//candi//SDEMT215.dbf")
+table (sociodem$SEX)
