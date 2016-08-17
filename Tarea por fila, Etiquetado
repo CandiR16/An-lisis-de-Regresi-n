@@ -1,0 +1,29 @@
+install.packages("foreign")
+require(foreign)
+#importar la base de datos
+SDEMT215<-read.dbf("C://Users//8//Desktop//SDEMT215.dbf")
+
+SDEMT215$CLASE1<-factor(SDEMT215$CLASE1,levels = c(1,2),labels =c("Población Económicamente Activa","Población No Económicamente Activa") )
+wtd.table(SDEMT215$CLASE1)
+
+SDEMT215$CLASE2<-factor(SDEMT215$CLASE2,levels = c(1,2,3,4),labels =c("Población Ocupada","Población desocupada","Disponibles","No disponibles") )
+wtd.table(SDEMT215$CLASE2)
+
+SDEMT215$CLASE3<-factor(SDEMT215$CLASE3,levels = c(1,2,3,4,5,6,7),labels =c("Ocupado Pleno","Ocupado Sin Pago","Ocupado Ausente con Nexo Laboral","Ocupado Ausente con Retorno Asegurado","Desocupados Iniciadores","Desocupados con Búsqueda","Desocupados Ausentes sin Ingreso y sin Nexo Laboral") )
+wtd.table(SDEMT215$CLASE3)
+
+SDEMT215$POS_OCU <- factor(SDEMT215$POS_OCU,levels = c(1,2,3,4,5), labels = c("Trabajadores Subordinados y Remunerados", "Empleadores", "Trabajadores por Cuenta Propia", "Trabajadores sin Pago", "No Especificado"))
+wtd.table(SDEMT215$POS_OCU)
+
+SDEMT215$SEG_SOC <- factor(SDEMT215$SEG_SOC,levels = c(1,2,3), labels = c("Con Acceso", "Sin Acceso", "No Especificado"))
+wtd.table(SDEMT215$SEG_SOC)
+
+SDEMT215$RAMA <- factor(SDEMT215$RAMA,levels = c(6,1,2,3,4,5,7), labels = c("Agropecuario", "Construcción", "Industria Manufacturera", "Comercio", "Servicios", "Otros", "No Especificado"))
+wtd.table(SDEMT215$POS_OCU)
+
+
+Alvarez Coria Francisco Eduardo
+Hernández Flores Laura Gabriela
+Medina Jaramillo Ángel
+Rodríguez Quintanar Javier Leonardo
+Rosas Mendieta Candi
