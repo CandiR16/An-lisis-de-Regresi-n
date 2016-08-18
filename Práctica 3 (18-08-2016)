@@ -1,0 +1,53 @@
+setwd ("C://Users//SALA-C5//Desktop")
+require (foreign)
+
+SDEMT215<- data.frame(read.dbf("SDEMT215.DBF"))
+
+Recodificar
+#4.1 Recodificación de varuiables numericas (rangos)
+
+#Método 1 SENCILLO
+SDEMT215$EDAD11[as.numeric(SDEMT215$EDA) >= 0 & as.numeric(SDEMT215$EDA)<= 10] <- 1
+SDEMT215$EDAD11[as.numeric(SDEMT215$EDA) >= 11 & as.numeric(SDEMT215$EDA)<= 20] <- 2
+SDEMT215$EDAD11[as.numeric(SDEMT215$EDA) >= 21 & as.numeric(SDEMT215$EDA)<= 30] <- 3
+SDEMT215$EDAD11[as.numeric(SDEMT215$EDA) >= 31 & as.numeric(SDEMT215$EDA)<= 40] <- 4
+SDEMT215$EDAD11[as.numeric(SDEMT215$EDA) >= 41] <- 5
+ls(SDEMT215) #PARA VER LISTA DE VARIABLES
+table (SDEMT215$EDAD11)
+class(SDEMT215$ENT) ## PARA VER QUE TIPO DE VARIABLE ES
+SDEMT215$ENT <- (as.character (as.numeric (SDEMT215$ENT))) #PARA CAMBIAR VARIABLES DE TIPO
+class(SDEMT215$ENT)
+
+
+#Método IFELSE
+SDEMT215$EDAD111 <- ifelse(as.numeric(SDEMT215$EDA) >= 0 & as.numeric(SDEMT215$EDA)<=10,1,
+                    ifelse(as.numeric(SDEMT215$EDA) >= 11 & as.numeric(SDEMT215$EDA)<=20,2,
+                    ifelse(as.numeric(SDEMT215$EDA) >= 21 & as.numeric(SDEMT215$EDA)<=30,3,
+                    ifelse(as.numeric(SDEMT215$EDA) >= 31 & as.numeric(SDEMT215$EDA)<=40,4,5))))
+table(SDEMT215$EDAD111)
+
+#4.1 Recodificación de variables de tipo caracter
+class (SDEMT215$R_DEF)
+SDEMT215$VALIDO[as.character(SDEMT215$R_DEF)!="00"] <- "Entrevista incompleta"
+SDEMT215$VALIDO[as.character(SDEMT215$R_DEF)=="00"] <- "Entrevista completa"
+table(SDEMT215$VALIDO)
+
+
+#5 Subconjunto de Datos
+
+#5.1 Seleccionando Variables de Interés
+#Método 1
+var<-c("R_DEF", "LOC", "MUN", "C_RES")
+newdata1 <- SDEMT215[,var]
+View(var)
+View(newdata1)
+
+#Seleccionar Casos u Observaciones
+#función subset() FORMA SENCILLA DE SELECCIONAR
+help (subset)
+mujer <- subset (SDEMT215,SDEMT215$SEX == 2)
+table (mujer$SEX)
+
+mujer$CD_A <- as.character(mujer$CD_A)
+mujer1 <- subset(mujer, mujer$CD_A == "02" | mujer$CD_A == "16")
+table (mujer1$CD_A) 
