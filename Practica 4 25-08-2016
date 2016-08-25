@@ -1,0 +1,17 @@
+require (foreign)
+
+sdemt <- read.dbf("C://Users//SALA-C15//Desktop//candi//SDEMT215.bdf")
+
+####Entidades  16=Michoacan  26=Sonora
+
+sdemt$ENT1 <- as.mujer(as.character(sdemt$ENT))
+
+var<-c("ENT", "POS_OCU", "SEX")
+tabla1 <- subset (SDEMT215,SDEMT215$ENT == 2)
+tabla1 <- SDEMT215[,var]
+
+mujer <- subset (SDEMT215,SDEMT215$SEX == 2)
+View(var)
+View(newdata1)
+
+ <- subset (SDEMT215,SDEMT215$SEX == 2)
