@@ -1,0 +1,62 @@
+###%%%%%%    "MODELO DE REGRESIÓN SIMPLE             %%%%%############
+
+estaturas 1.2, 1.23, 1.19,1.32, 1.28, 1.22, 1.17,  1.29, 1.33, 1.15
+### nivel económico 110, 130, 108,167,156,115,104,138,170,107
+
+#Queremop comprobar la hipotesis que entre mayor ingreso de la familia
+#hay una mayor estaura  en los niños
+
+esta<- c(1.2, 1.23, 1.19, 1.32, 1.28, 1.22, 1.17,  1.29, 1.33, 1.15)
+eco<- c(110, 130, 108,167,156,115,104,138,170,107)
+plot(eco, esta, pch=11, xlab="Ingreso Económico",
+     ylab="Estatura", main="Gráfica de disperción")
+
+
+##lo primero que hacemos es un diagrama de disperción
+plot(esta, eco, pch=11, xlab="estatura", ylab="ingreso", main="Diagrama de Disperción", col="blue")
+#el segundo paso es ver las correlaciones
+#para calcularel coeficiente de correlación  se utilza:
+cor(esta, eco, method="pearson")
+
+#la forma general de cor() es.......
+###argumentos### 
+#1) Variable Dependiente
+#2) Variable Independiente
+#3) Método de Correlación 
+help(cor)
+
+
+##Generan un matriz con las variables 
+eco<- c(110, 130, 108,167,156,115,104,138,170,107)
+cor(esta,eco,method="pearson")
+#Una vez quwe tenemos la idea de que hay una buena relacion para realizar una prueba de la corelacion existe una funcion 
+#la prueba d ehipotesis para esta funciopn es H0=r=0 es de 
+#misma logica q2ue cor()
+cor.test(esta, eco, method = "pearson")
+#si el p - value es menor a .05 rechazamos H0
+#por lo que si existe relacion entre la variables 
+
+
+#ya que confirmamos la correlacion aplicamos el modelo
+#´para aplicar el modelo se utiliza la función lm()---->funcion que "modelo lineal"
+mod1<-lm(esta~eco)
+###lm(var dep~var indep)
+summary(mod1)    #resumen acerca del modelo
+
+
+#los residuales nos generan las dfiferencias entre los valores ajustados y reales
+#en los resultados tenemos los coeficientes que contienen
+#que expone si los coeficientes son significativos
+
+
+#volvemos a graficar nuestra grafica de dispersión 
+plot(eco, esta,pch=11, xlab="Estatura", ylab="Ingresos", main="Gráfica de dispersión",col="blue")
+ 
+abline(mod1)
+#graficar la recta del modelo1 en la grafica de dispersion de las variables en estudio,,, (recta ajustada)
+
+#Plantear la ecuación 
+esta=.9323+.0023 eco   #Recta que tenemos segun los datos que tenemos
+
+names(mod1)
+mod1$coefficients
