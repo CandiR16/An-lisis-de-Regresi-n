@@ -1,0 +1,75 @@
+
+::::::::::::::::::::%%%%%%%%%%%%%%%           PRÁCTICA 7                %%%%%%%%%%%%%%%%%:::::::::::::::::::::
+
+
+##############    Análisis de los coeficientes     ###########
+### B0 ES .93 Y B1 es .0023, si la variable ingreso incrementa en un peso
+### diagnostico del modelo
+### "car"---> usar funciones para los supuestos y la funcion de predicción 
+install.packages("car")
+
+base1<- data.frame(eco,esta)
+
+base1$ajuste.mod1 <- fitted(mod1) ### pone los  valores ajustados en la base
+base1$residuals.mod1<- residuals(mod1) ###residuos del modelo
+base1$rstudent.mod1<-rstudent(mod1) ###residuos estudentizados  (estandarizados)
+ 
+## Estas variables se utilizan para comprobar los supuestos...
+## Supuesto de normalidad.... es que los residuos tengan una distribución normal
+## para conocer la normalidad se utiliza la prueba de """"   shapiro    """ para analizar los residuos
+shapiro.test (base1$rstudent.mod1)
+#prueba de hipostesis shapiro test
+## H0-->  la muestra tiene una distribucion normal
+## Ha--> la muestra no tiene distribucion normal
+## tenemos un valor de .8172 no se rechza la hipostesis nula
+## por lo tabnto se acepta que hay normalidad
+## ahora veremos este resultado en un grafico
+qqnorm (base1$rstudent.mod1, main = "Normal (0,1)")
+### se obtiene gráfico de  dispersion con la normal 0,1
+qqline (base1$rstudent.mod1,)
+### ahora vamos a revisar la homogeneidad de varianzas
+### para la homogeneidad se requiere de una libreria que se llama lmtest, debido a que esta
+### se tiene que aplicar la prueba de Breusch-pagan test
+install.packages("lmtest")
+require (lmtest)
+bptest(mod1)
+### en esta prueba esperamos que haya homogeneidad  de la varianza
+### la H0--> si hay homogeneidad en las varianzas
+### la Ha--> no hay homogeneidad en la varianzas
+### en a prieba bptest obtenemos un p-value de .6108
+### por lo tanto no se rechZa la hipotesis nula,
+### es decir se acepta con 95% de confianza la H0
+### para eso tenemos que tener un p-value mayor a .05, por lo que para mod1
+### se puede decir que hay homogeneidad en las varianzas
+### prueba de autocorrelacion o independencia 
+### en este caso se utiliza la ´prueba de "" DUrbin Watson.....
+### para esta prueba se utiliza
+require (car)
+dwtest(mod1, alternative= "two.sided")
+### H0--> no hay autocorrelación de los residuos
+### Ha--> si hay autocorrelación en los residuos
+### la prueba durbin watson genera un resultado de p-value .9142
+### por lo que no se rechaza la hipotesis nula
+### debido a que tenemos unp-valñue mayor a .05... esto quiere decir que no hay autocorrelación
+### en los residuos 
+### otra forma de evaluar la prueba de durbin watson es con  el valor de durbin watson  que se espera
+### que este en el rango de 1.5 a 2.5
+### si esta dentro de este rango se puede decir que np hay autocorrelación en los residuos
+### ahora vamos a comprobar esto de manera gráfica
+plot (base1$residuals.mod1, pch=109, ylab="residuales", xlab="in")
+abline(h=cor (base1$esta, base$eco))
+### en este caso se puede ver que tenemos una grafica sin relacion sin patreon que es lo 
+### que estamos esperando
+### por lo que se confirma que no hay autocorrelacion
+### ya con estos datos podras garantizar que tenemos un buen modelo y podremos predecir o 
+### analizar los coeficients
+### se podria tener un problema de rangos si predecimos sin considerar rangos de nuestra 
+### variable por lo que vamso a definir una nueva base con los limites
+limbase1 <- seq (min (base1$eco), max (base1$eco), length=10)
+limbase1 <- data.frame (limbase1)  ## se convierte en data.frame por que los argumentos lo piden así
+limbasep <- predict.lm (mod1, limbase1, interval="prediction", se.fit=TRUE, data=base1) 
+##predict se usa para predecir, se.fit son los errores estandar ajustados
+head (limbasep$fit) ### esto genera los limites... rango de la prediccion que podemos tener..
+###y muestra los rangos inferior y superior
+### para dibujar los limites
+matplot(limbase1, limbasep$fit, type="l", xlab="ingreso", ylab="estatura")
