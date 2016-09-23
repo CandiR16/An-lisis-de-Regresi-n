@@ -1,0 +1,37 @@
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#
+############                   PRACTICA 8:EQUIPO 4                    ############
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#
+
+require(foreign)
+setwd("C://Users//SALA-C16//Documents")
+SDEMT216<-data.frame(read.dbf("sdemt216.dbf"))
+install.packages("questionr")
+require(questionr)
+SDEMT216$ENT<-as.numeric(SDEMT216$ENT)
+campeche<-subset(SDEMT216,SDEMT216$ENT==04)
+
+#Analisis de regresion
+#Queremos probar la siguiente hipotesis.
+#H0: Entre mas años tenga una persona percibe un mayor ingreso
+#Ha: Los años no tiene que ver con el ingreso
+
+ingreso<-as.numeric(campeche$INGOCUP)
+edad<-as.numeric(campeche$EDA)
+plot(edad,ingreso)
+cor.test(edad,ingreso)
+mod<-lm(ingreso~edad)
+summary(mod)
+abline(mod,col="purple")
+anova(mod)
+#ECUACION
+ingreso=827.124+43.743edad
+confint(mod,level = 0.95)
+anovamod<-anova(mod)
+summary(anovamod)
+
+#4SUPUESTOS
+base<-data.frame(ingreso,edad)
+base$ajuste<-fitted(mod) ### pone en la base los valores ajustados (y^)
+base$residuales.mod<-residuals(mod) ###pone los residuos del modelo   (y-y^)
+base1$rstudent.mod1<-rstudent(mod1) ###pone los residuos estandarizados o estudentizados
+###NOTA: COMO ESTE MODELO NO FUE VALIDO, LOS CUATRO SUPUESTOS NO SE PUEDEN REALIZAR
