@@ -1,0 +1,65 @@
+##################################################################################################################
+########################################   MÓDELO DE REGRESIÓN MULTIPLE  #########################################
+##################################################################################################################
+capa<-c(4330,5500,5500,4700,5200,5500,4700,5500,5800,5000)  # Var Independiente (X2)
+calidad<-c(2,3,4,3,4,4,4,5,5,5)  # Var Independiente (X1)
+precio<-c(190,219,249,249,250,340,289,395,439,525)  #Var Dependiente (Y)
+mochil<-data.frame(precio,capa,calidad) #
+
+## Primero aplicamos una correlación 
+cor (mochil, use ="everything", method="pearson")
+## Observamos que las variables tienen correlaciones diversas
+## Aplicamos Modelo
+modmo<-lm(precio~calidad+capa)
+summary(modmo)
+## Se revisa la R2 ajustada por ser un MDRM (Modelo de Regresión Multiple) 
+## tenemos una R2 ajustada de .70 lo que 
+## implica que la recta de regresión explica en 70% la variabilidad del modelo
+## Revisando el valor F y P-value tenemos que si cumple con los criterios de un 
+## buen ajuste (F>1 y P-value = .05) con estos datos podemos mencionar que estamos
+## ante un buen modelo por lo que se pasa al diagnóstico; el diagnóstico se realiza
+## para poder generalizar los resultados del modelo a partir de la revisión de los 
+## supuestos. Lo primero que se hace es un MDRM es observar gráficamente los supuestos
+
+#############    Primer Supuesto    ###########
+## En primer lugar se contrastan los valores residuales contra los valores ajustados
+## se realiza la función plot y el argumento which =1 recuerden que el pch cambia la
+## figur de las observaciones
+plot(modmo, which = 1, pch=3)
+## Aquí esperamos que los residuos se distribuyan si patron una tendencia  en la 
+## variabilidad de los residuos sugiere que la varianza esta relacionada  con  la media
+## violando el supuesto de varianza constante
+
+############    Supuesto de Normalidad 2   ##########
+plot(modmo, which=2, pch=3) #Which es un argumento para contrastar las variables 
+## En este caso esperamos que los residuos tipificados alrededor de la linea se 
+## observa que si hay distribución Normal
+
+#############    Tercer Supuesto    ###########
+## Los residuos estan estandarizados por sus desviaciones estandar estimadas.
+plot(modmo,which=3,pch=3)
+## Aqui podemos ver si los supuestos se distribuyen constantes en los valores ajustados
+## una gráfica sin patron observable
+
+############    Cuarto Supuesto    ###########
+plot(modmo,which=5,pch=3)
+## Expone la importancia de cada observación en el modelo en esta distancia el Gráfico 
+## nos muestra las observasines que podran impactar en el modelo por lo que se sugiere
+## eliminarlas (1,7,10)
+
+## Eliminamos renglones o columnas 
+mochil1<-mochil[c(-1,-7,-10),]
+# Aqui creamos una nueva base se datos en donde de la base mochil quitamos los renglones
+## que queremos y si quisieramos quitar columnas es despues de la ultima coma
+mochil2<-mochil[,-2]
+
+
+## Primer aplicamos una correlación
+cor (mochil1, use ="everything", method="pearson")
+## Observamos que las variables tiene correlaciones diversas aplicamos modelo
+help(lm)
+modmo <-lm(precio~calidad+capa, mochil1)
+modmo2<-lm(mochil1$precio~mochil1$calidad+mochil1$capa)
+summary(modmo2)
+
+
