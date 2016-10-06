@@ -1,0 +1,62 @@
+
+###################################################################################################
+############################       Selección del Módelo                ############################
+###################################################################################################
+plot(capa,precio, pch=12, xlab="capa", ylab="precio", main="Gráfica de Disperción", col="blue")
+cor(precio,capa,method="pearson")
+cor.test(precio,capa,method="pearson")
+## Con estos indicadores rechazamos el modelo simple, ahora revisaos con la otra variable que tenemos
+plot(calidad,precio,pch=11, xlab="capa", ylab="precio", main="Gráfica de Disperción", col="blue")
+cor(precio,calidad,method="pearson")
+cor.test(precio,calidad,method="pearson")
+## Comparación de módelos
+## Pretendemos seleccionar el mejor subconjunto de variables independientes; en este caso para la 
+## aplicación del MRM tenemos dos variables independientes (calidad y capacidad) por lo que se propone
+## comparar 3 modelos con la finalidad de aplicar el principio de parsimonia, conocer variables indep
+## innecesarias, evitar multicolinealidad, es decir, que se tienen muchas variables intentando explicar
+## el modelo antes estas variables se pueden comparar 3 modelos:
+## 1) precio~capacidad
+## 2) precio~calidad
+## 3) precio~calidad + capacidad
+## ¿COMO SELECCIONAMOS EL MEJOR MODELO?
+## Criterio de informacion de Akaike (AIC)
+## el problema de utilizar R2 para comparar modelos es que al introducir nuevas variables al modelo
+## esta medidad siempre crece. Si estaos decidiendo cual de todos los modelos ajusta mejor los datos
+## El modelo con mas variebles independientes siempre sera el mejor ajustando; por eso se utiliza
+## el AIC, una medida de ajuste que penaliza el modelo por tener mas variables, viene definido por
+## AIC=(n)(log(SCR/n))+2k
+## SCR= suma de cuadrados residuales 
+## n es el n° de casos en el modelo
+## SCR= suma de los cuadrados de los residuos del modelo
+## K es el n° de variables independienes 
+## El prble,a es que el unico criterio para el AIC es si el AIC es mayor el modelo es peor
+## si el AIC es menor el modelo es mejor, es decir esperamos in AIC mas pequeño.
+## el AIC nos va a ayudar a decidir sobre el modelo, el metodo mas recomendado es el metodo
+## de step bystep
+## para R se utuliza la función step() adentro del metodo step bystep hay 3 modalidades
+## 1) Forward--> parte del coeficiente Bo y de ahi va probando las variables independientes  para ver
+## cual es la que más aporta al modelo
+## 2) Backward-->R reemplaza con todas las variables independientes y estudia sei el AIC baja cuando
+## hay cambios de variables 
+## 3) Both--> empieza como el forward la diferencia es que se realiza test para conocder  el var 
+## independiente menos utilidad
+## El método mas recomendables es el Backward porque tiene un efecto represor que permite
+## probar cuando una var tiene influencia solo si otra var se mantiene constante
+## Vamos a calcular el modelo con las 2 var indep
+moch<-data.frame(precio,capa,calidad)
+cor(moch,use="everything", method="pearson")
+mod1<-lm(precio~capa+calidad, data=moch)
+summary(mod1)
+step(mod1,direction="backward")
+## aqui podemos ver que le metodo steo analizo dos modelos 
+## 1) precio~capa+calidad con un AIC=83.9
+## 2) precio~calidad con un AIC=83.51
+
+## Ahora vamos aprobar con el metodo Both
+step(mod1,direction="both")
+## Tenemos un mejor resultado igual al de backward por la forma que se construye este metodo ahora con el metodo
+## de forward
+step(mod1,direction="forward")
+## en este solop muestra el modelo compelto porque inicia haciendo pruebas con el modelo nulo y solo deja el modelo
+## completo porque es el mayo AIC muestra.....
+## En este caso nos podemos con el mejor AIC que es el modelo de precio~calidad....
