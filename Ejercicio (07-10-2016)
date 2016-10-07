@@ -1,0 +1,84 @@
+##################################################################################################################
+#######################################   Ejercicio Clase 07/10/2016 MRM  ########################################
+##################################################################################################################
+y <-c (25.5, 31.2, 25.9, 38.4, 18.4, 26.7, 26.4, 25.9, 32, 25.2,3 9.7, 35.7, 26.5)
+x1<-c (1.74, 6.32, 6.2, 10.52, 1.19, 1.22, 4.10, 6.32, 4.08, 4.15, 10.15, 1.72, 1.70)
+x2<-c (5.30,5.42,8.41,4.63,11.60,5.85,6.62,8.72,4.42,7.60,4.83,3.12,5.3)
+x3<-c (10.8,9.4,7.2,8.5,9.4,9.9,8,9.1,8.7,9.2,9.4,7.6,8.2)
+taby<-data.frame(y,x1,x2,x3)
+cor(taby,use="everything", method = "pearson")
+
+## 0) analizar graficos de dispersion y pruebas de correlacion
+cor(taby,use="everything", method = "pearson")
+mody<-lm(y~x1+x2+x3)
+plot(mody,which=2,pch=13)
+plot(taby)
+
+## 1) plantear la ecuacion estimada origina, es decir con todas las variable
+mody
+## y=39.1757+1.0166x1-1.8608x2-0.3461x3
+
+## 2) analizar la anova, r cuadrada, estadistico F (mediante p.h.)
+anova(mody)
+summary(mody)
+## Se revisa la R2 ajustada por ser un MDRM (Modelo de Regresión Multiple) 
+## tenemos una R2 ajustada de .08825 lo que 
+## implica que la recta de regresión explica en 88.25% la variabilidad del modelo
+## Revisando el valor F y P-value tenemos que si cumple con los criterios de un 
+## buen ajuste (F>1 y P-value = .05) con estos datos podemos mencionar que estamos
+## ante un buen modelo por lo que se pasa al diagnóstico; el diagnóstico se realiza
+## para poder generalizar los resultados del modelo a partir de la revisión de los 
+## supuestos. Lo primero que se hace es un MDRM es observar gráficamente los supuestos
+
+
+## 3) comparen modelos ccon backward y analicen el modelo que genere la funcion step
+## Con analizar me refiero a los incisos 0,1 y 2 (en dado caso que la función step genere el mismo que el modelo
+## compelto hagan caso omiso a esto)
+step(mody,direction="backward")
+## Al hacer esta prueba podemos decir que con el modelo mas completo y  que nos quedamos con y=x1+x2 ya que 
+## el AIC=20.6 en cambio el original es de AIC=22.15
+## Volvemos a realizar los incisos 0,1 y 2 
+taby1<-data.frame(y,x1,x2)
+cor(taby1,use="everything", method = "pearson")
+##### 0) analizar graficos de dispersion y pruebas de correlacion
+cor(taby1,use="everything", method = "pearson")
+mody1<-lm(y~x1+x2)
+plot(mody1,which=2,pch=13)
+plot(taby1)
+##### 1) plantear la ecuacion estimada origina, es decir con todas las variable
+mody1
+## y=36.089+1.031x1-1.869x2
+#### 2) analizar la anova, r cuadrada, estadistico F (mediante p.h.)
+anova(mody1)
+summary(mody1)
+##v Se revisa la R2 ajustada por ser un MDRM (Modelo de Regresión Multiple) 
+## tenemos una R2 ajustada de .8905 lo que 
+## implica que la recta de regresión explica en 89.05% la variabilidad del modelo
+## Revisando el valor F y P-value tenemos que si cumple con los criterios de un 
+## buen ajuste (F>1 y P-value = .05) con estos datos podemos mencionar que estamos
+## ante un buen modelo por lo que se pasa al diagnóstico; el diagnóstico se realiza
+## para poder generalizar los resultados del modelo a partir de la revisión de los 
+## supuestos. Lo primero que se hace es un MDRM es observar gráficamente los supuestos
+
+
+## 4) Realizar la prueba de 3 supuestos a este modelo (Kolmogorov-smirnov,breusch-pagan y durinwatson) analicen
+## analicen los resultados de estas pruebas
+mod2<-lm(precio~calidad,data=moch)
+## Aplicamos lo supuestos para ver si tenemos unm buen modelo
+taby1$ajus<-fitted(mody1)
+taby1$resi<-residuals(mody1)
+taby1$rstud<-rstudent(mody1)
+require(lmtest)
+############    Supuesto de Normalidad   ############
+ks.test(taby1$rstud,"pnorm")
+hist(taby1$rstud,xlab="Residuales",main="Hist Residuales")
+## El P-value para el contraste de normalidad es que mayor que .05 (p=.5483) y a demas el histograma se parece a 
+## Una distribucion Normal (curva en forma de campana) entonces no hay problemas de normalidad
+############    Homogeneidad de varianzas   ############
+bptest(mody1,studentize=FALSE,data=y)
+## Significancia  p-value es .394 mayor que 0.05 por lo que podemos decir que la varianza es constante a lo largo
+## de la muestra
+############    Autocorrelación   ############
+dwtest(mody1,alternative = "two.sided", data=taby1)
+## Acpetamos la hipotesis nula de que no existe correlacion entre los residuos con un  p-value superior a 0.05
+## P-value=.354
