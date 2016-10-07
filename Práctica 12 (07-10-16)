@@ -1,0 +1,28 @@
+###################################################################################################
+#######################       Probamos que tan buenoe es el modelo          #######################
+###################################################################################################
+mod2<-lm(precio~calidad,data=moch)
+## Aplicamos lo supuestos para ver si tenemos unm buen modelo
+moch$ajus<-fitted(mod2)
+moch$resi<-residuals(mod2)
+moch$rstud<-rstudent(mod2)
+## Ahora probamos el supuesto de Normalidad
+## Normalidad
+install.packages("lmtest")
+require(lmtest)
+
+############    Supuesto de Normalidad   ############
+ks.test(moch$rstud,"pnorm")
+hist(moch$rstud,xlab="Residuales",main="Hist Residuales")
+## El P-value para el contraste de normalidad es que mayor que .05 (p=.9719) y a demas el histograma se parece a 
+## Una distribucion Normal (curva en forma de campana) entonces no hay problemas de normalidad
+
+############    Homogeneidad de varianzas   ############
+bptest(mod2,studentize=FALSE,data=mochil)
+## Significancia  p-value es .4154 mayor que 0.05 por lo que podemos decir que la varianza es constante a lo largo
+## de la muestra
+
+############    Autocorrelación   ############
+dwtest(mod2,alternative = "two.sided", data=moch)
+## Acpetamos la hipotesis nula de que no existe correlacion entre los residuos con u  p-value superior a 0.05
+## P-value=.2976
