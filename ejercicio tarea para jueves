@@ -1,0 +1,25 @@
+##################################################################################################################
+#######################################   Ejercicio Tarea 07/10/2016 MRM  ########################################
+##################################################################################################################
+## Deseamos estimar una recta de regresion donde las v.d. es la esperanza de vida femenina y las V.i. son:
+# 1)La TMI (Tasa de Mortalidad Infantil)
+# 2)La TGF (Tasa global de fecundida)
+# 3)Porcentaje de hombres alfabetas (alfabmas)
+# 4)Porcentaje de mujeres alfabteas (alfabmas)
+# 5)Porcentaje de población urbana (urbana)
+# 6)PIB percapita
+# 7)la relación entre nacimientos y defunciones (nac_def)
+# 8)La tasa de crecimiento de la población (% anual)
+ 
+## Datos banco mundial 2005-2015
+## México, Brasil y Argentina
+##  plantear modelo y grafico pruebas de correlacion y plantear modelos, sacar summar y anova comparacion de modelos y quedarme so,o con uno
+## Modelo uso step y aplicar supuestos
+
+
+
+
+###http://data.worldbank.org/data-catalog/world-development-indicators
+
+
+
