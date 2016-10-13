@@ -1,0 +1,335 @@
+##################################################################################################################
+#######################################   Ejercicio Tarea 13/10/2016 MRM  ########################################
+##################################################################################################################
+## Deseamos estimar una recta de regresion donde las v.d. es la esperanza de vida femenina y las V.i. son:
+# 1)La TMI (Tasa de Mortalidad Infantil)
+# 2)La TGF (Tasa global de fecundida)
+# 3)Porcentaje de hombres alfabetas (alfabmas)
+# 4)Porcentaje de mujeres alfabteas (alfabmas)
+# 5)Porcentaje de población urbana (urbana)
+# 6)PIB percapita
+# 7)la relación entre nacimientos y defunciones (nac_def)
+# 8)La tasa de crecimiento de la población (% anual)
+
+## Datos banco mundial 2005-2015
+## México, Brasil y Argentina
+## Plantear modelo y grafico pruebas de correlacion y plantear modelos, sacar summar y anova comparacion de modelos y quedarme so,o con uno
+## Modelo uso step y aplicar supuestos
+
+###http://data.worldbank.org/data-catalog/world-development-indicators
+install.packages("foreing")
+require(foreign)
+BDM<-data.frame(read.csv("/Users/apple/Documents/WDI_Data.csv"))
+install.packages("questionr")
+require(questionr)
+BDM$Country.Code <- as.character(BDM$Country.Code)
+MEX <- subset(BDM, BDM$Country.Code == "MEX")
+ARG <- subset(BDM, BDM$Country.Code == "ARG")
+BRA <- subset(BDM, BDM$Country.Code == "BRA")
+Trp <- rbind.data.frame(MEX, ARG, BRA)
+Trp$Indicator.Name <- as.character(Trp$Indicator.Name)
+
+View(Trp)
+
+MEX$Indicator.Name <- as.character(MEX$Indicator.Name)
+BRA$Indicator.Name <- as.character(BRA$Indicator.Name)
+ARG$Indicator.Name <- as.character(ARG$Indicator.Name)
+
+##########VARIABLE DEPENDIENTE
+##Esperanza de vida femenina
+EMx <-  subset(MEX, MEX$Indicator.Name == "Life expectancy at birth, female (years)")
+EBr <-  subset(BRA, BRA$Indicator.Name == "Life expectancy at birth, female (years)")
+EAr <-  subset(ARG, ARG$Indicator.Name == "Life expectancy at birth, female (years)")
+
+########VARIABLE INDEPENDIENTE
+#1)La TMI (Tasa de Mortalidad Infantil)
+##Mortalidad INfantil
+mMx <-  subset(MEX, MEX$Indicator.Name == "Mortality rate, infant (per 1,000 live births)")
+mBr <-  subset(BRA, BRA$Indicator.Name == "Mortality rate, infant (per 1,000 live births)")
+mAr <-  subset(ARG, ARG$Indicator.Name == "Mortality rate, infant (per 1,000 live births)")
+#2)La TGF (Tasa global de fecundida)
+fMx <- subset(MEX,MEX$Indicator.Name=="Adolescent fertility rate (births per 1,000 women ages 15-19)")
+fBr <- subset(BRA,BRA$Indicator.Name=="Adolescent fertility rate (births per 1,000 women ages 15-19)")
+fAr <- subset(ARG,ARG$Indicator.Name=="Adolescent fertility rate (births per 1,000 women ages 15-19)")
+
+#3)Porcentaje de hombres alfabetas (alfabmas)
+##Alfabetas hombres
+LmMx <-  subset(MEX, MEX$Indicator.Name == "Literacy rate, adult male (% of males ages 15 and above)")
+LmBr <-  subset(BRA, BRA$Indicator.Name == "Literacy rate, adult male (% of males ages 15 and above)")
+LmAr <-  subset(ARG, ARG$Indicator.Name == "Literacy rate, adult male (% of males ages 15 and above)")
+
+#4)Porcentaje de mujeres alfabteas (alfabmas)
+##Alfabetas Mujeres
+LfMx <-  subset(MEX, MEX$Indicator.Name == "Literacy rate, adult female (% of females ages 15 and above)")
+LfBr <-  subset(BRA, BRA$Indicator.Name == "Literacy rate, adult female (% of females ages 15 and above)")
+LfAr <-  subset(ARG, ARG$Indicator.Name == "Literacy rate, adult female (% of females ages 15 and above)")
+
+#5)Porcentaje de población urbana (urbana)
+##Poblacion Urbana %
+PMx <-  subset(MEX, MEX$Indicator.Name == "Urban population (% of total)")
+PBr <-  subset(BRA, BRA$Indicator.Name == "Urban population (% of total)")
+PAr <-  subset(ARG, ARG$Indicator.Name == "Urban population (% of total)")
+
+#6)PIB percapita
+##PIB pércapita
+GMx <-  subset(MEX, MEX$Indicator.Name == "GDP per capita growth (annual %)")
+GBr <-  subset(BRA, BRA$Indicator.Name == "GDP per capita growth (annual %)")
+GAr <-  subset(ARG, ARG$Indicator.Name == "GDP per capita growth (annual %)")
+
+#7)la relación entre nacimientos y defunciones (nac_def)
+##tasa de muerte
+dMx <-  subset(MEX, MEX$Indicator.Name == "Death rate, crude (per 1,000 people)")
+dBr <-  subset(BRA, BRA$Indicator.Name == "Death rate, crude (per 1,000 people)")
+dAr <-  subset(ARG, ARG$Indicator.Name == "Death rate, crude (per 1,000 people)")
+##tasa de natalidad
+bMx <-  subset(MEX, MEX$Indicator.Name == "Birth rate, crude (per 1,000 people)")
+bBr <-  subset(BRA, BRA$Indicator.Name == "Birth rate, crude (per 1,000 people)")
+bAr <-  subset(ARG, ARG$Indicator.Name == "Birth rate, crude (per 1,000 people)")
+#################################################### b_dMx <- c(bMx/dMx)
+#8)La tasa de crecimiento de la población (% anual)
+##Tasa de crecimiento anual
+gMx <-  subset(MEX, MEX$Indicator.Name == "Population growth (annual %)")
+gBr <-  subset(BRA, BRA$Indicator.Name == "Population growth (annual %)")
+gAr <-  subset(ARG, ARG$Indicator.Name == "Population growth (annual %)")
+
+##Selecion de periodo
+mxE <- c(EMx$X2005, EMx$X2006, EMx$X2007, EMx$X2008, EMx$X2009, EMx$X2010, EMx$X2011, EMx$X2012, EMx$X2013, EMx$X2014)
+brE <- c(EBr$X2005, EBr$X2006, EBr$X2007, EBr$X2008, EBr$X2009, EBr$X2010, EBr$X2011, EBr$X2012, EBr$X2013, EBr$X2014)
+arE <- c(EAr$X2005, EAr$X2006, EAr$X2007, EAr$X2008, EAr$X2009, EAr$X2010, EAr$X2011, EAr$X2012, EAr$X2013, EAr$X2014)
+
+
+mxm <- c(mMx$X2005, mMx$X2006, mMx$X2007, mMx$X2008, mMx$X2009, mMx$X2010, mMx$X2011, mMx$X2012, mMx$X2013, mMx$X2014)
+brm <- c(mBr$X2005, mBr$X2006, mBr$X2007, mBr$X2008, mBr$X2009, mBr$X2010, mBr$X2011, mBr$X2012, mBr$X2013, mBr$X2014)
+arm <- c(mAr$X2005, mAr$X2006, mAr$X2007, mAr$X2008, mAr$X2009, mAr$X2010, mAr$X2011, mAr$X2012, mAr$X2013, mAr$X2014)
+
+
+mxP <- c(PMx$X2005, PMx$X2006, PMx$X2007, PMx$X2008, PMx$X2009, PMx$X2010, PMx$X2011, PMx$X2012, PMx$X2013, PMx$X2014)
+brP <- c(PBr$X2005, PBr$X2006, PBr$X2007, PBr$X2008, PBr$X2009, PBr$X2010, PBr$X2011, PBr$X2012, PBr$X2013, PBr$X2014)
+arP <- c(PAr$X2005, PAr$X2006, PAr$X2007, PAr$X2008, PAr$X2009, PAr$X2010, PAr$X2011, PAr$X2012, PAr$X2013, PAr$X2014)
+
+mxd <- c(dMx$X2005, dMx$X2006, dMx$X2007, dMx$X2008, dMx$X2009, dMx$X2010, dMx$X2011, dMx$X2012, dMx$X2013, dMx$X2014)
+brd <- c(dBr$X2005, dBr$X2006, dBr$X2007, dBr$X2008, dBr$X2009, dBr$X2010, dBr$X2011, dBr$X2012, dBr$X2013, dBr$X2014)
+ard <- c(dAr$X2005, dAr$X2006, dAr$X2007, dAr$X2008, dAr$X2009, dAr$X2010, dAr$X2011, dAr$X2012, dAr$X2013, dAr$X2014)
+
+mxn <- c(bMx$X2005, bMx$X2006, bMx$X2007, bMx$X2008, bMx$X2009, bMx$X2010, bMx$X2011, bMx$X2012, bMx$X2013, bMx$X2014)
+brn <- c(bBr$X2005, bBr$X2006, bBr$X2007, bBr$X2008, bBr$X2009, bBr$X2010, bBr$X2011, bBr$X2012, bBr$X2013, bBr$X2014)
+arn <- c(bAr$X2005, bAr$X2006, bAr$X2007, bAr$X2008, bAr$X2009, bAr$X2010, bAr$X2011, bAr$X2012, bAr$X2013, bAr$X2014)
+
+
+mxg <- c(gMx$X2005, gMx$X2006, gMx$X2007, gMx$X2008, gMx$X2009, gMx$X2010, gMx$X2011, gMx$X2012, gMx$X2013, gMx$X2014)
+brg <- c(gBr$X2005, gBr$X2006, gBr$X2007, gBr$X2008, gBr$X2009, gBr$X2010, gBr$X2011, gBr$X2012, gBr$X2013, gBr$X2014)
+arg <- c(gAr$X2005, gAr$X2006, gAr$X2007, gAr$X2008, gAr$X2009, gAr$X2010, gAr$X2011, gAr$X2012, gAr$X2013, gAr$X2014)
+
+
+mxG <- c(GMx$X2005, GMx$X2006, GMx$X2007, GMx$X2008, GMx$X2009, GMx$X2010, GMx$X2011, GMx$X2012, GMx$X2013, GMx$X2014)
+brG <- c(GBr$X2005, GBr$X2006, GBr$X2007, GBr$X2008, GBr$X2009, GBr$X2010, GBr$X2011, GBr$X2012, GBr$X2013, GBr$X2014)
+arG <- c(GAr$X2005, GAr$X2006, GAr$X2007, GAr$X2008, GAr$X2009, GAr$X2010, GAr$X2011, GAr$X2012, GAr$X2013, GAr$X2014)
+
+
+mxLm <- c(LmMx$X2005, LmMx$X2006, LmMx$X2007, LmMx$X2008, LmMx$X2009, LmMx$X2010, LmMx$X2011, LmMx$X2012, LmMx$X2013, LmMx$X2014)
+#brLm <- c(LmBr$X2005, LmBr$X2006, LmBr$X2007, LmBr$X2008, LmBr$X2009, LmBr$X2010, LmBr$X2011, LmBr$X2012, LmBr$X2013, LmBr$X2014)
+#arLm <- c(LmAr$X2005, LmAr$X2006, LmAr$X2007, LmAr$X2008, LmAr$X2009, LmAr$X2010, LmAr$X2011, LmAr$X2012, LmAr$X2013, LmAr$X2014)
+
+
+mxLf <- c(LfMx$X2005, LfMx$X2006, LfMx$X2007, LfMx$X2008, LfMx$X2009, LfMx$X2010, LfMx$X2011, LfMx$X2012, LfMx$X2013, LfMx$X2014)
+#brLf <- c(LfBr$X2005, LfBr$X2006, LfBr$X2007, LfBr$X2008, LfBr$X2009, LfBr$X2010, LfBr$X2011, LfBr$X2012, LfBr$X2013, LfBr$X2014)
+#arLf <- c(LfAr$X2005, LfAr$X2006, LfAr$X2007, LfAr$X2008, LfAr$X2009, LfAr$X2010, LfAr$X2011, LfAr$X2012, LfAr$X2013, LfAr$X2014)
+
+mxF <- c(fMx$X2005, fMx$X2006, fMx$X2007, fMx$X2008, fMx$X2009, fMx$X2010, fMx$X2011, fMx$X2012, fMx$X2013, fMx$X2014)
+brF <- c(fBr$X2005, fBr$X2006, fBr$X2007, fBr$X2008, fBr$X2009, fBr$X2010, fBr$X2011, fBr$X2012, fBr$X2013, fBr$X2014)
+arF <- c(fAr$X2005, fAr$X2006, fAr$X2007, fAr$X2008, fAr$X2009, fAr$X2010, fAr$X2011, fAr$X2012, fAr$X2013, fAr$X2014)
+
+
+
+###########################################MEXICO#########################################
+EMEX<-data.frame(mxE,mxm,mxP,mxd,mxG,mxg,mxLf,mxLm,mxF,mxn)
+View(EMEX)
+cor (EMEX, use ="everything", method="pearson")
+modelmx<-lm(mxE~mxm+mxP+mxd+mxG+mxg+mxLf+mxF+mxn,data=EMEX)
+#Adjusted R-squared:      1 
+#F-statistic: 2.804e+04
+#p-value: 0.004619
+summary(modelmx)
+step(modelmx, direction = "backward")
+#Resultado 
+modelmx2 <-lm(mxE ~ mxm + mxP + mxd + mxF + mxn, data = EMEX)
+summary(modelmx2)
+#Adjusted R-squared:      1 
+#F-statistic: 1.354e+05  
+#p-value: 1.528e-10
+anova(modelmx2) 
+#Analysis of Variance Table
+
+#Response: mxE
+#Df  Sum Sq Mean Sq    F value    Pr(>F)    
+#mxm        1 2.04682 2.04682 6.7462e+05 1.318e-11 ***
+#mxP        1 0.00627 0.00627 2.0678e+03 1.399e-06 ***
+#mxd        1 0.00000 0.00000 6.6000e-02 0.8098735    
+#mxF        1 0.00059 0.00059 1.9455e+02 0.0001532 ***
+#mxn        1 0.00001 0.00001 4.2157e+00 0.1092914    
+#Residuals  4 0.00001 0.00000   
+
+modelmx3 <-lm( mxE ~ mxm + mxP + mxF + mxn , data = EMEX)
+summary(modelmx3)
+#Coefficients:
+ #              Estimate Std. Error t value Pr(>|t|)    
+#  (Intercept) 64.223880   5.583375  11.503  8.7e-05 ***
+#  mxm         -0.072351   0.011852  -6.104 0.001709 ** 
+ # mxP          0.238425   0.059990   3.974 0.010590 *  
+#  mxF         -0.093599   0.009161 -10.218 0.000154 ***
+ # mxn          0.157171   0.044672   3.518 0.016949 * 
+
+#Adjusted R-squared:      1 
+#F-statistic: 9.184e+04 
+#p-value: 2.392e-12
+EMEX2<-data.frame(mxE,mxm,mxP,mxF,mxn)
+EMEX2$ajus<-fitted(modelmx3)
+EMEX2$resi<-residuals(modelmx3)
+EMEX2$rstud<-rstudent(modelmx3)
+View(EMEX2)
+#prueba de normalidad
+ks.test(EMEX2$rstud,"pnorm")
+#p-value = 0.882
+
+#prueba homodgeneidad de varianzas
+install.packages("lmtest")
+require("lmtest")
+bptest(modelmx3, studentize = FALSE, data = EMEX2)
+#p-value = 0.4956
+#como p value es mayor a .05 podemos decir que la varianza se comporta de manera constante a lo 
+#largo de la muestra
+dwtest(modelmx3, alternative = "two.sided", data = EMEX2)
+#p-value = 0.9697 
+#aceptamos la H0 de que no existe correlación en tre los residuos con un pvalue superior a .05
+
+###############################BRASIL#########################################
+EBR<-data.frame(brE,brm,mxP,brd,brG,brg,brF,brn)
+View(EBR)
+cor (EBR, use ="everything", method="pearson")
+modelbr<-lm(brE~brm+brP+brd+brG+brg+brF+brn,data=EBR)
+summary(modelbr)
+#Adjusted R-squared:      1 
+#F-statistic: 1.133e+05 
+#p-value: 8.824e-06
+
+step(modelbr, direction = "backward")
+#Resultado 
+Call:
+modelbr2 <-lm(formula = brE ~ brm + brP + brg + brF, data = EBR)
+summary(modelbr2)
+#Adjusted R-squared:      1 
+#F-statistic: 4.191e+05 
+#p-value: 5.376e-14
+
+anova(modelbr2) 
+#Analysis of Variance Table
+
+#Response: brE
+#          Df Sum Sq Mean Sq    F value    Pr(>F)    
+# brm        1 5.4487  5.4487 1.4405e+06 7.621e-15 ***
+# brP        1 0.8928  0.8928 2.3605e+05 7.011e-13 ***
+# brg        1 0.0000  0.0000 2.4086e+00   0.18137    
+# brF        1 0.0000  0.0000 7.1082e+00   0.04456 *  
+# Residuals  5 0.0000  0.0000             
+
+modelbr3 <-lm(formula = brE ~ brm + brP  + brF, data = EBR)
+summary(modelbr3)
+#Coefficients:
+ #            Estimate Std. Error t value Pr(>|t|)    
+#(Intercept) -7.309635   0.423519 -17.259 2.42e-06 ***
+#brm          0.020974   0.002303   9.107 9.85e-05 ***
+#brP          0.998123   0.003851 259.219 2.22e-13 ***
+#brF         -0.000196   0.002196  -0.089    0.932    
+#---
+ # Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+#Residual standard error: 0.003023 on 6 degrees of freedom
+#Multiple R-squared:      1,	Adjusted R-squared:      1 
+#F-statistic: 2.313e+05 on 3 and 6 DF,  p-value: 1.414e-15
+
+EBR2<-data.frame(brE,brm,brP,brF)
+EBR2$ajus<-fitted(modelbr3)
+EBR2$resi<-residuals(modelbr3)
+EBR2$rstud<-rstudent(modelbr3)
+View(EBR2)
+#prueba de normalidad
+ks.test(EBR2$rstud,"pnorm")
+#p-value = 0.4163
+
+#prueba homodgeneidad de varianzas
+require("lmtest")
+bptest(modelbr3, studentize = FALSE, data = EBR2)
+#p-value = 0.7484
+#como p value es mayor a .05 podemos decir que la varianza se comporta de manera constante a lo 
+#largo de la muestra
+dwtest(modelbr3, alternative = "two.sided", data = EBR2)
+#DW = 1.6977, p-value = 0.03104
+#alternative hypothesis: true autocorrelation is not 0
+
+##########################################ARGENTINA#########################################
+EAR<-data.frame(arE,arm,arP,ard,arG,arg,arF,arn)
+View(EAR)
+cor (EAR, use ="everything", method="pearson")
+modelar<-lm(arE~arm+arP+ard+arG+arg+arF+arn,data=EAR)
+summary(modelar)
+#Adjusted R-squared:      1 
+#F-statistic: 9.859e+05 
+#p-value: 1.014e-06
+
+step(modelar, direction = "backward")
+#Resultado 
+Call:
+modelar2 <- lm(formula = arE ~ arm + arP + arG + arg + arF + arn, data = EAR)
+summary(modelar2)
+#Adjusted R-squared:      1 
+#F-statistic: 1.725e+06 
+#p-value: 6.828e-10
+
+
+anova(modelar2) 
+#Analysis of Variance Table
+
+#Response: arE
+#          Df  Sum Sq Mean Sq    F value    Pr(>F)    
+#arm        1 2.21054 2.21054 1.0278e+07 6.692e-11 ***
+#arP        1 0.01522 0.01522 7.0759e+04 1.172e-07 ***
+#arG        1 0.00000 0.00000 7.9185e+00  0.067072 .  
+#arg        1 0.00001 0.00001 6.7830e+01  0.003748 ** 
+#arF        1 0.00000 0.00000 7.1692e+00  0.075207 .  
+#arn        1 0.00003 0.00003 1.3992e+02  0.001299 ** 
+#Residuals  3 0.00000 0.00000                
+
+modelar3 <-lm(formula = arE ~ arm + arP  + arg + arn, data = EBR)
+summary(modelar3)
+#Coefficients:
+#             Estimate Std. Error t value Pr(>|t|)    
+#(Intercept)  2.173212   0.976416   2.226 0.076577 .  
+#arm         -0.014316   0.003858  -3.710 0.013850 *  
+#arP          0.867551   0.009661  89.799 3.25e-09 ***
+#arg          0.042902   0.030914   1.388 0.223869    
+#arn         -0.083443   0.008380  -9.958 0.000174 ***
+  ---
+ # Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+#Residual standard error: 0.0006181 on 5 degrees of freedom
+#Multiple R-squared:      1,	Adjusted R-squared:      1 
+#F-statistic: 1.456e+06 on 4 and 5 DF,  p-value: 2.388e-15
+
+EAR2<-data.frame(arE,arm,arP,arg,arn)
+EAR2$ajus<-fitted(modelar3)
+EAR2$resi<-residuals(modelar3)
+EAR2$rstud<-rstudent(modelar3)
+View(EAR2)
+#prueba de normalidad
+ks.test(EAR2$rstud,"pnorm")
+#p-value = 0.7737
+
+#prueba homodgeneidad de varianzas
+require("lmtest")
+bptest(modelar3, studentize = FALSE, data = EAR2)
+#p-value = 0.1501
+#como p value es mayor a .05 podemos decir que la varianza se comporta de manera constante a lo 
+#largo de la muestra
+dwtest(modelar3, alternative = "two.sided", data = EAR2)
+#DW = 3.3592, p-value = 0.3133
+#alternative hypothesis: true autocorrelation is not 0
