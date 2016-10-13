@@ -1,0 +1,26 @@
+###################################################################################################
+##############       Continuación Ejercicio Clase 06/10/2016 MRM               ####################
+###################################################################################################
+
+#########################################        Predicción     ###################################
+modest$coefficients
+inter<- seq(min(tabest$uso), max(tabest$uso), length=length(tabest$uso)) 
+#seq(funcuion que indica el minimo y el maximo)
+bolpred <- data.frame(gama=2, operacion=2, uso=inter)
+predi1<-predict(modest,bolpred,interval="prediction",se.fit = TRUE,data=tabest)
+head(predi1$fit)
+## Detectar multicolinealidad en el modelo
+## Cuando un modelo tiene multicolinealdad en un MRM es cuando una var indep. es combinación 
+## lineal de otra var indep.... es decir la mulitcolinealidad en un MRM si hay fuerte 
+## correlación entre dos o más var indep... esto es cuando tengamos un coeficiente de correlación
+## sea 1
+## para detectar esta colinealidad se estima el factor de inflacion de la varianza (VIF)
+## este factor se calcula con R a traves de la función VIF()
+## para este calculo se recomiendan estos rangos
+## FIV=estados de los predictores
+## FIV=1 No correlacionados
+## 1<FIV < 5 Moderadamente correlacionados
+## Fiv> 5 a 10 Altamente correlacionados
+install.packages("car")
+require(car)
+vif(modest)
