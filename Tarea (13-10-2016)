@@ -1,0 +1,12 @@
+###################################################################################################################
+####################################        Tarea en equipo (13-10-2016)    #######################################
+##################################################################################################################
+
+## Con la base del SDEMT de la ENOE 2016 2° trimestre aoplicar un modelo con las sig variables
+## Dependiente=ING_OCU
+## Indepemdiente = EDA, SEXO, HRSOCUP, AÑOS ESCOLARIDAD
+## Restriccioón de poblacion (Ciudad:Monterrey)
+## sean de 15 a 65 años,
+## que el ingreso dea entre 1 y 30,000
+## sean asalariados o subordinados
+## en la base que hagan el modelo sin N/A 
