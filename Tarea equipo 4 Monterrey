@@ -1,0 +1,293 @@
+install.packages("foreign")
+require(foreign) 
+sdemt216<-data.frame(read.dbf("C://Users//Sala-F13.RTIC-13-HP//Desktop//sdemt216.dbf"))
+sdemt216$EDA<-as.numeric(sdemt216$EDA)
+sdemt216$INGOCUP<-as.numeric(sdemt216$INGOCUP)
+sdemt216$SEX<-as.numeric(sdemt216$SEX)
+sdemt216$HRSOCUP<-as.numeric(sdemt216$HRSOCUP)
+sdemt216$ANIOS_ESC<-as.numeric(sdemt216$ANIOS_ESC)
+base1<-subset(sdemt216,sdemt216$CD_A=="03"&sdemt216$REMUNE2C==1)
+var<-c("INGOCUP","SEX","EDA","HRSOCUP","ANIOS_ESC")
+base2<-base1[,var]
+base3<-subset(base2,base2$INGOCUP>=1&base2$INGOCUP<=3000)
+mtrey<-subset(base3,base3$EDA>=15&base3$EDA<=65)
+
+#APLICANDO LA REGRESIÓN
+
+cor(mtrey,use="everything",method = "pearson")
+modelo<-lm(INGOCUP~SEX+EDA+HRSOCUP+ANIOS_ESC,data=mtrey)
+summary(modelo)
+#Adjusted R-squared:  0.1543 
+#F-statistic: 7.247 on 4 and 133 DF
+#p-value: 2.605e-05
+
+#1.supuesto: varianza constante
+plot(modelo,which=1,pch=4)
+
+#2.Supuesto de normalidad
+plot(modelo,which=2,pch=4)
+
+#3.Tercer supuesto
+#Los residuos están estandarizados por sus desviaciones estándar estimadas.
+plot(modelo,which=3,pch=4)
+#Se presenta una gráfica sin patrón observable
+#4. supuesto
+plot(modelo,which=5,pch=4)
+
+modelo$ajustados<-fitted(modelo)#aqui añadimos una variable que se llama ajustados
+modelo$res<-residuals(modelo)
+modelo$rstud<-rstudent(modelo)
+########################################################################################################3
+install.packages("lmtest")
+require(lmtest)#Prueba de normalidad
+ks.test(modelo$rstud,"pnorm")
+#Prueba de homogeneidad de varianzas
+bptest(modelo,studentize = FALSE,data=modelo)
+#Prueba de autocorrelación
+dwtest(modelo,alternative="two.sided",data=modelo)
+install.packages("car")
+require(car)
+outlierTest(modelo) 
+influencePlot(modelo)
+#############################################################################################################
+install.packages("faraway")
+require(faraway)
+cooks.distance(modelo)
+dc<-cooks.distance(modelo)
+halfnorm(dc,3, etiqueta)
+##################################################################################################################
+step(modelo,direction="backward")
+modelonuevo<-lm(mtrey$INGOCUP~mtrey$SEX+mtrey$HRSOCUP)
+summary(modelonuevo)
+
+anova(modelonuevo)
+summary(modelonuevo)
+################################################################################################################
+#Si queremos predecir el valor de INGOCUP
+inter<-seq(min(mtrey$INGOCUP),max(mtrey$INGOCUP), length=length(mtrey$INGOCUP)) 
+bolpred<-data.frame(SEX=2, HRSOCUP=35,uso=inter) 
+pred<-predict(modelonuevo,bolpred,interval= "prediction",se.fit=TRUE, data=mtrey) 
+head(pred$fit) 
+##########################################################################################################################
+##########################################################################################################################
+##########################################################################################################################
+##########################################################################################################################
+##########################################################################################################################
+##########################################################################################################################
+##########################################################################################################################
+##########################################################################################################################
+##########################################################################################################################
+
+#monterreyf!!
+#dependiente= INGOCUP
+#independiente= EDAD,SEXO,HRSOCUP,AÑOS ESCOLARIDAD
+########
+#RESTRICCIONES
+#poblacioon ciudad depende equipo
+#sean de 15  a 65 años, ingreso entre 1 a 30000,asalariado o subordinados
+#hacer el modelo sin NA
+require(foreign)
+SDEMT<-read.dbf("C://Users//Sala-E6//Desktop//sdemt216.dbf")
+attach(SDEMT)
+var<-c("INGOCUP","SEX","EDA","HRSOCUP","ANIOS_ESC","CD_A","REMUNE2C")
+detach(SDEMT)
+base<-SDEMT[,var]
+monterrey<-subset(base,(base$CD_A=="03"))
+monterreyf2<-subset(monterrey,(as.numeric(base$EDA)>=15 & as.numeric(base$EDA)<=65))
+monterrey3<-subset(monterrey2,(as.numeric(base$INGOCUP)>=1 & as.numeric(base$INGOCUP)<=30000)&(as.numeric(base$REMUNE2C)==1))
+monterrey4<-na.omit(monterrey3)
+monterreyf<-monterrey4[,c(-6,-7)]
+
+monterreyf$INGOCUP<-as.numeric(as.character(monterreyf$INGOCUP))
+monterreyf$SEX<-as.numeric(as.character(monterreyf$SEX))
+monterreyf$EDA<-as.numeric(as.character(monterreyf$EDA))
+monterreyf$HRSOCUP<-as.numeric(as.character(monterreyf$HRSOCUP))
+monterreyf$ANIOS_ESC<-as.numeric(as.character(monterreyf$ANIOS_ESC))
+
+
+cor(monterreyf)
+modelo<-lm(INGOCUP~SEX+EDA+HRSOCUP+ANIOS_ESC,data = monterreyf)
+summary(modelo)
+
+#Residuals:
+#  Min      1Q  Median      3Q     Max 
+#-9410.7 -2149.2  -686.6  1242.7 20721.7 
+
+#Coefficients:
+#  Estimate Std. Error t value Pr(>|t|)    
+#(Intercept) -2814.870    542.707  -5.187 2.34e-07 ***
+#  SEX         -1095.265    170.394  -6.428 1.58e-10 ***
+#  EDA            70.934      6.710  10.571  < 2e-16 ***
+#  HRSOCUP        49.193      5.841   8.422  < 2e-16 ***
+#  ANIOS_ESC     658.913     24.487  26.909  < 2e-16 ***
+#Residual standard error: 3755 on 2195 degrees of freedom
+#Multiple R-squared:  0.2821,	Adjusted R-squared:  0.2808 
+#F-statistic: 215.6 on 4 and 2195 DF,  p-value: < 2.2e-16
+
+step(modelo,direction = "backward")
+#nos deja el mismo modelo
+
+anova(modelo)
+#Analysis of Variance Table
+
+#Response: INGOCUP
+#             Df     Sum Sq    Mean Sq F value    Pr(>F)    
+#SEX          1 6.2672e+08 6.2672e+08  44.452 3.288e-11 ***
+#EDA          1 6.9521e+08 6.9521e+08  49.309 2.904e-12 ***
+#HRSOCUP      1 6.2751e+08 6.2751e+08  44.508 3.197e-11 ***
+#ANIOS_ESC    1 1.0209e+10 1.0209e+10 724.085 < 2.2e-16 ***
+#Residuals 2195 3.0947e+10 1.4099e+07                      
+#---
+#  Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+#1.supuesto: varianza constante
+plot(modelo,which=1,pch=4)
+#Observamos que hay tres residuos que se distribuyen con valor , el 4, el 8 y el 10
+#2.Supuesto de normalidad
+plot(modelo,which=2,pch=4)
+#Los residuos tipificados si estan alrededor de la linea por lo tanto se asume normalidad
+#3.Tercer supuesto
+#Los residuos están estandarizados por sus desviaciones estándar estimadas.
+plot(modelo,which=3,pch=4)
+#Se presenta una gráfica sin patrón observable
+#4. supuesto
+plot(modelo,which=5,pch=4)
+#Supone eliminar 4 y 1, ya que son las observaciones que podrian impactar el modelo
+
+monterreyf$ajustados<-fitted(modelo)
+monterreyf$residuales<-residuals(modelo)
+monterreyf$rstudent<-rstudent(modelo)
+
+#probando normalidad
+ks.test(monterreyf$rstudent,"pnorm")
+
+#One-sample Kolmogorov-Smirnov test
+#data:  monterreyf$rstudent
+#D = 0.12932, p-value < 2.2e-16
+#alternative hypothesis: two-sided
+#Warning message:
+#  In ks.test(monterreyf$rstudent, "pnorm") :
+#  ties should not be present for the Kolmogorov-Smirnov test
+
+require("lmtest")
+bptest(modelo,studentize = F,data = monterreyf)
+
+#Breusch-Pagan test
+#data:  modelo
+#BP = 768.19, df = 4, p-value < 2.2e-16
+
+dwtest(modelo,alternative = "two.sided",data = monterreyf)
+#Durbin-Watson test
+#data:  modelo
+#DW = 1.7764, p-value = 1.502e-07
+#alternative hypothesis: true autocorrelation is not 0
+##########################################################################################################################
+##########################################################################################################################
+##########################################################################################################################
+##########################################################################################################################
+##########################################################################################################################
+##########################################################################################################################
+##########################################################################################################################
+##########################################################################################################################
+##########################################################################################################################
+#monterrey!!
+#dependiente= INGOCUP
+#independiente= EDAD,SEXO,HRSOCUP,AÑOS ESCOLARIDAD
+########
+#RESTRICCIONES
+#poblacioon ciudad depende equipo
+#sean de 15  a 65 años, ingreso entre 1 a 30000,asalariado o subordinados
+#hacer el modelo sin NA
+require(foreign)
+SDEMT<-read.dbf("/Users/apple/Documents/sdemt216.dbf")
+attach(SDEMT)
+var<-c("INGOCUP","SEX","EDA","HRSOCUP","ANIOS_ESC","CD_A","REMUNE2C")
+detach(SDEMT)
+base<-SDEMT[,var]
+monterrey<-subset(base,(base$CD_A=="03")&(as.numeric(base$EDA)>=15 & as.numeric(base$EDA)<=65)&(as.numeric(base$INGOCUP)>=1 & as.numeric(base$INGOCUP)<=30000)&(as.numeric(base$REMUNE2C)==1))
+monterrey<-na.omit(monterrey)
+monterrey<-monterrey[,c(-6,-7)]
+
+monterrey$INGOCUP<-as.numeric(as.character(monterrey$INGOCUP))
+monterrey$SEX<-as.numeric(as.character(monterrey$SEX))
+monterrey$EDA<-as.numeric(as.character(monterrey$EDA))
+monterrey$HRSOCUP<-as.numeric(as.character(monterrey$HRSOCUP))
+monterrey$ANIOS_ESC<-as.numeric(as.character(monterrey$ANIOS_ESC))
+
+
+cor(monterrey)
+modelo<-lm(INGOCUP~SEX+EDA+HRSOCUP+ANIOS_ESC,data = monterrey)
+summary(modelo)
+
+#Residuals:
+#  Min      1Q  Median      3Q     Max 
+#-9410.7 -2149.2  -686.6  1242.7 20721.7 
+
+#Coefficients:
+#  Estimate Std. Error t value Pr(>|t|)    
+#(Intercept) -2814.870    542.707  -5.187 2.34e-07 ***
+#  SEX         -1095.265    170.394  -6.428 1.58e-10 ***
+#  EDA            70.934      6.710  10.571  < 2e-16 ***
+#  HRSOCUP        49.193      5.841   8.422  < 2e-16 ***
+#  ANIOS_ESC     658.913     24.487  26.909  < 2e-16 ***
+#Residual standard error: 3755 on 2195 degrees of freedom
+#Multiple R-squared:  0.2821,	Adjusted R-squared:  0.2808 
+#F-statistic: 215.6 on 4 and 2195 DF,  p-value: < 2.2e-16
+
+step(modelo,direction = "backward")
+#nos deja el mismo modelo
+
+anova(modelo)
+#Analysis of Variance Table
+
+#Response: INGOCUP
+#             Df     Sum Sq    Mean Sq F value    Pr(>F)    
+#SEX          1 6.2672e+08 6.2672e+08  44.452 3.288e-11 ***
+#EDA          1 6.9521e+08 6.9521e+08  49.309 2.904e-12 ***
+#HRSOCUP      1 6.2751e+08 6.2751e+08  44.508 3.197e-11 ***
+#ANIOS_ESC    1 1.0209e+10 1.0209e+10 724.085 < 2.2e-16 ***
+#Residuals 2195 3.0947e+10 1.4099e+07                      
+#---
+#  Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+#1.supuesto: varianza constante
+plot(modelo,which=1,pch=4)
+#Observamos que hay tres residuos que se distribuyen con valor , el 4, el 8 y el 10
+#2.Supuesto de normalidad
+plot(modelo,which=2,pch=4)
+#Los residuos tipificados si estan alrededor de la linea por lo tanto se asume normalidad
+#3.Tercer supuesto
+#Los residuos están estandarizados por sus desviaciones estándar estimadas.
+plot(modelo,which=3,pch=4)
+#Se presenta una gráfica sin patrón observable
+#4. supuesto
+plot(modelo,which=5,pch=4)
+#Supone eliminar 4 y 1, ya que son las observaciones que podrian impactar el modelo
+
+monterrey$ajustados<-fitted(modelo)
+monterrey$residuales<-residuals(modelo)
+monterrey$rstudent<-rstudent(modelo)
+
+#probando normalidad
+ks.test(monterrey$rstudent,"pnorm")
+
+#One-sample Kolmogorov-Smirnov test
+#data:  monterrey$rstudent
+#D = 0.12932, p-value < 2.2e-16
+#alternative hypothesis: two-sided
+#Warning message:
+#  In ks.test(monterrey$rstudent, "pnorm") :
+#  ties should not be present for the Kolmogorov-Smirnov test
+
+require("lmtest")
+bptest(modelo,studentize = F,data = monterrey)
+
+#Breusch-Pagan test
+#data:  modelo
+#BP = 768.19, df = 4, p-value < 2.2e-16
+
+dwtest(modelo,alternative = "two.sided",data = monterrey)
+#Durbin-Watson test
+#data:  modelo
+#DW = 1.7764, p-value = 1.502e-07
+#alternative hypothesis: true autocorrelation is not 0
