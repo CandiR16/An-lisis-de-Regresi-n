@@ -1,0 +1,65 @@
+##################################################################################################################
+####################################        Tarea en equipo (13-10-2016)    #######################################
+##################################################################################################################
+
+## Con la base del SDEMT de la ENOE 2016 2° trimestre aoplicar un modelo con las sig variables
+## Dependiente=ING_OCU
+## Indepemdiente = EDA, SEXO, HRSOCUP, AÑOS ESCOLARIDAD
+## Restriccioón de poblacion (Ciudad:Monterrey)
+## sean de 15 a 65 años,
+## que el ingreso dea entre 1 y 30,000
+## sean asalariados o subordinados
+## en la base que hagan el modelo sin N/A 
+
+ +require(foreign)
+ +SDEMT<-read.dbf("/Users/rodrigomondragondillanes/Documents/Análisis de Regresión/sdemt216.dbf")
+ +attach(SDEMT)
+ +var<-c("INGOCUP","SEX","EDA","HRSOCUP","ANIOS_ESC","CD_A","REMUNE2C")
+ +detach(SDEMT)
+ +base<-SDEMT[,var]
+ +monterrey<-subset(base,(base$CD_A=="03")&(as.numeric(base$EDA)>=15 & as.numeric(base$EDA)<=65)&(as.numeric(base$INGOCUP)>=1 & as.numeric(base$INGOCUP)<=30000)&
+ +                    (as.numeric(base$REMUNE2C)==1))
+ +monterrey<-na.omit(monterrey)
+ +monterrey<-monterrey[,c(-6,-7)]
+ +cor(monterrey)
+ +monterrey$INGOCUP<-as.numeric(as.character(monterrey$INGOCUP))
+ +monterrey$SEX<-as.numeric(as.character(monterrey$SEX))
+ +monterrey$EDA<-as.numeric(as.character(monterrey$EDA))
+ +monterrey$HRSOCUP<-as.numeric(as.character(monterrey$HRSOCUP))
+ +monterrey$ANIOS_ESC<-as.numeric(as.character(monterrey$ANIOS_ESC))
+ +
+ +
+ +cor(monterrey)
+ +modelo<-lm(INGOCUP~SEX+EDA+HRSOCUP+ANIOS_ESC,data = monterrey)
+ +summary(modelo)
+ +
+ +#Residuals:
+ +#  Min      1Q  Median      3Q     Max 
+ +#-9410.7 -2149.2  -686.6  1242.7 20721.7 
+ +
+ +#Coefficients:
+ +#  Estimate Std. Error t value Pr(>|t|)    
+ +#(Intercept) -2814.870    542.707  -5.187 2.34e-07 ***
+ +#  SEX         -1095.265    170.394  -6.428 1.58e-10 ***
+ +#  EDA            70.934      6.710  10.571  < 2e-16 ***
+ +#  HRSOCUP        49.193      5.841   8.422  < 2e-16 ***
+ +#  ANIOS_ESC     658.913     24.487  26.909  < 2e-16 ***
+ +#Residual standard error: 3755 on 2195 degrees of freedom
+ +#Multiple R-squared:  0.2821,	Adjusted R-squared:  0.2808 
+ +#F-statistic: 215.6 on 4 and 2195 DF,  p-value: < 2.2e-16
+ +
+ +step(modelo,direction = "backward")
+ +#nos deja el mismo modelo
+ +
+ +anova(modelo)
+ +monterrey$ajustados<-fitted(modelo)
+ +monterrey$residuales<-residuals(modelo)
+ +monterrey$rstudent<-rstudent(modelo)
+ +
+ +#probando normalidad
+ +ks.test(monterrey$rstudent,"pnorm")
+ +
+ +require("lmtest")
+ +bptest(modelo,studentize = F,data = monterrey)
+ +
+ +dwtest(modelo,alternative = "two.sided",data = monterrey)
