@@ -1,0 +1,17 @@
+###################################################################################################
+#######################        MODELO DE REGRESIÓN LOGISTICA               ########################
+###################################################################################################
+install.packages("foreign")
+require(foreign)
+setwd(("C://Users//SALA-C15//Desktop"))
+mti2013<-data.frame(read.dbf("mti2013.dbf"))
+wtd.table(mti2013$T_LOC,weights=mti2013$FAC_MTI)
+wtd.table(mti2013$T_LOC, mti2013$CLASE2, weights=mti2013$FAC_MTI)
+
+
+## Población objetivo son ocupados y zonas rurales
+mti2013v1<-subset(mti2013,mti2013$CLASE2==1 & mti2013$T_LOC==4)
+install.packages("questionr")
+require(questionr)
+wtd.table (mti2013v1$SEX,weights=mti2013v1$FAC_MTI)
+wtd.table (mti2013v1$T_PER,weights=mti2013v1$FAC_MTI)
