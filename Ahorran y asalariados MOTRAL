@@ -1,0 +1,30 @@
+install.packages("foreign")
+require(foreign)
+install.packages("questionr")
+require(questionr)
+
+setwd("C://Users//LORENZA//Desktop//motral2012_bd_dbf")
+cuestionario<-data.frame(read.dbf("motral2012_cuestionario.dbf"))
+empleo<-data.frame(read.dbf("motral2012_empleos.dbf"))
+#Pegado de bases
+folio<-paste(cuestionario$CD_A,cuestionario$ENT,cuestionario$CON,
+             cuestionario$V_SEL,cuestionario$N_HOG,cuestionario$H_MUD,cuestionario$N_REN)
+x<-data.frame(cuestionario,folio)
+
+folio<-paste(empleo$CD_A,empleo$ENT,empleo$CON,empleo$V_SEL,empleo$N_HOG,empleo$H_MUD,empleo$N_REN)
+x1<-data.frame(empleo,folio)
+
+motral<-merge(x,x1,by = "folio",all.x = T,all.y = T)
+#Seleccionando asalariados
+asalariados<-subset(motral,as.numeric(as.character(motral$P5))==1)
+wtd.table(asalariados$SEX,weights = asalariados$FAC)
+
+##Población Objetivo:
+##Son Asalariados y que si Ahorran
+motral2012<-subset(motral,motral$P13==1 & motral$P5==1)
+wtd.table (motral2012$P13,weights=motral2012$FAC)
+wtd.table (motral2012$P5,weights=motral2012$FAC)
+wtd.table (motral2012$SEX,weights=motral2012$FAC)
+
+
+  
