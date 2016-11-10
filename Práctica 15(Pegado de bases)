@@ -1,0 +1,22 @@
+setwd("C://Users//Sala-C15//Desktop//2016")
+coe1<-data.frame(read.dbf("coe1t216.dbf"))
+coe2<-data.frame(read.dbf("coe2t216.dbf"))
+sdemt216<-data.frame(read.dbf("sdemt216.dbf"))
+folio <-paste(sdemt216$CD_A,sdemt216$ENT,sdemt216$CON,sdemt216$V_SEL,
+              sdemt216$N_HOG,sdemt216$H_MUD,sdemt216$N_REN)
+sd<-data.frame(sdemt216,folio)
+
+folio <-paste(coe1$CD_A,coe1$ENT,coe1$CON,coe1$V_SEL,
+              coe1$N_HOG,coe1$H_MUD,coe1$N_REN)
+c1<-data.frame(coe1,folio)
+
+folio <-paste(coe2$CD_A,coe2$ENT,coe2$CON,coe2$V_SEL,
+              coe2$N_HOG,coe2$H_MUD,coe2$N_REN)
+c2<-data.frame(coe2,folio)
+
+c1s<-merge(sd, c1, by = "folio", all.x = T,all.y = T)
+ccs<-merge(c1s,c2,by="folio",all.x=T,all.y=T)
+ls(c1)
+table(ccs$SEX, ccs$P1)
+wtd.table (ccs$EDA.x, weights=ccs$FAC.x)
+sum(wtd.table (ccs$EDA.x, weights=ccs$FAC.x))
