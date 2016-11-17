@@ -1,0 +1,75 @@
+###################################################################################################
+##########################          Práctica 17 (Evaluación)         ##############################
+###################################################################################################
+install.packages("foreign")
+require(foreign)
+install.packages("questionr")
+require(questionr)
+
+solorural<-data.frame(read.spss("C://Users//Sala-C15//Desktop//solorural.sav"))
+ls(solorural)
+
+## Población de 5 a 17 años
+wtd.table (solorural$sex,  weights=solorural$fac_mti)
+## Niños    Niñas    Total
+## 4061217  3800117   7861334
+
+## Tamaño de Muestra
+wtd.table (solorural$sex )
+## Niños    Niñas    Total
+## 9302     8798      18100 
+
+## Ocupados
+wtd.table (solorural$sex, solorural$clase2==1 )
+## Niños    Niñas    Total
+## 1414     474      1888
+
+## Porcentaje de Ocupados respecto al total
+## Niños
+1414 *100/4061217
+## Niñas
+474 *100/3800117
+## Total
+1888 *100/7861334
+## Niños       Niñas      Total
+## 0.03481715  0.0124733  0.02401628 
+
+
+## CARACTERÍSTICAS INDIVIDUALES
+## Ocupados por Grupos de Edad
+ocu<-subset(solorural,solorural$clase2==1)
+class(ocu$eda)
+ocu$eda1[as.numeric(ocu$eda) >= 5 & as.numeric(ocu$eda)<= 9] <- 1
+ocu$eda1[as.numeric(ocu$eda) >= 10 & as.numeric(ocu$eda)<= 13] <- 2
+ocu$eda1[as.numeric(ocu$eda) >= 14 & as.numeric(ocu$eda)<= 17] <- 3
+table (ocu$eda1,ocu$eda)
+## De 5 a 9
+## No hay Niñ@s ocupados en ese rango de edad
+## De 10 a 13
+wtd.table (ocu$sex, ocu$eda1==2,weights=ocu$fac_mti)
+## Niños    Niñas    Total
+## 121416   37279    158695    
+## De 14 a 17
+wtd.table (ocu$sex, ocu$eda1==3,weights=ocu$fac_mti)
+## Niños    Niñas    Total
+## 501076   167691   668767   
+##Ocupados según asistencia escolar
+wtd.table (ocu$asis, ocu$sex,weights=ocu$fac_mti)
+##            hombres  mujeres  Total
+## Asiste     335572   107060   442632
+## No Asiste  286920   97910    384830
+
+
+## CARACTERÍSTICAS DEL HOGAR
+## Tamaño del hogar
+wtd.table (ocu$tam_hog, ocu$sex,weights=ocu$fac_mti)
+##                     hombres  mujeres  Total
+## 1 a 3 integrantes   55181    25618    80799
+## 4 a 5 integrantes   149312   44721    194033
+## 6 a 7 intengrantes  65844    21472    87316
+## 8 y más             35190    8830     44020
+## Sexo del jefe del hogar
+wtd.table (ocu$sex_jefe, ocu$sex,weights=ocu$fac_mti)
+##          hombres  mujeres
+## Hombre   248915   78322
+## Mujer    56612    22319
