@@ -1,0 +1,68 @@
+###################################################################################################
+##########################          Práctica 18 (Evaluación 2)         ############################
+###################################################################################################
+solorural<-data.frame(read.spss("C://Users//Sala-C15//Desktop//solorural.sav"))
+ls(solorural)
+
+## CARACTERÍSTICAS INDIVIDUALES
+## Ocupados por Grupos de Edad
+ocu<-subset(solorural,solorural$c_ocu=='ocupado')
+## t_per~sex+eda1+asis+sex_jefe+escol_jefe+t_apo1+ocu_jefe
+## t_per   es nuestra variable dependiente
+## las demas son Independientes
+
+table(ocu$t_per) ## Recodificar y solo dejar en tres categorias, eliminar y mandar 4 a n/a
+## Otra Forma de Recodificar
+install.packages("plyr")
+library(plyr)
+ocu$t_per<-revalue(factor(ocu$t_per), c("4"=NA))
+table(ocu$t_per)
+
+table(ocu$sex) ## Correcta
+
+table(ocu$eda1) ## Correcta
+
+table(ocu$asis) ## Correcta
+
+table(ocu$sex_jefe) ##Correcta
+
+table(ocu$escol_jefe) ## Recodificar
+ocu$escol_jefe<-as.character(ocu$escol_jefe)
+ocu$escol_jefe<-revalue(factor(ocu$escol_jefe), c("7"=NA))
+table(ocu$escol_jefe)
+
+table(ocu$t_apo1) ## Correcta
+
+table(ocu$ocu_jefe) ## Correcta
+
+## Etiquetar las variables que estan muestran numeros
+ocu$t_per <- factor(ocu$t_per, levels=c(1,2,3), labels = c("Es un familiar","No es un familiar", 
+                                                           "Trabaja solo o por su cuenta propia"))
+table(ocu$t_per)
+wtd.table(ocu$t_per, weights =ocu$fac_mti )
+
+ocu$escol_jefe <- factor(ocu$escol_jefe, levels=c(1,2,3,4,5,6), labels = c("Sin instrucción","Primaria incompleta",
+"Primaria completa", "Secundaria incompleta", "Secundaria completa","Algún año de preparatoria o equivalente y más"))
+table(ocu$escol_jefe)
+
+ocu$eda1<-factor(ocu$eda1,levels = c(1,2,3), labels = c("5-9", "10-13", "14-17"))
+table(ocu$eda1)
+
+wtd.table(ocu$t_per, weights =ocu$fac_mti )
+
+###################################################################################################
+########################          Modelo de Regresión Logistica         ###########################
+###################################################################################################
+require(nnet)
+mod1<-multinom(t_per~1, data=ocu)
+summary(mod1)
+modfin<-multinom(t_per~sex+eda1+asis+sex_jefe+escol_jefe+t_apo1+ocu_jefe, data=ocu)
+g<-summary(modfin,Wald=T)
+print(g)
+
+## Tabla en LATEX
+install.packages("stargazer")
+library(stargazer)
+help("stargazer")
+s<-stargazer(modfin, type='html', title = "Coefficients", summary = T) (modelo, tipo, titulo, y resumen)
+stargazer((modfin, type="text", title="mlogit", digits=2, out="C://Users//Sala-C15//Downloads//summary.txt"))
