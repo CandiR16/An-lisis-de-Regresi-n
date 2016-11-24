@@ -1,0 +1,72 @@
+###################################################################################################
+##################        MODELO DE REGRESIÓN LOGISTICA-->MOTRAL20112         #####################
+###################################################################################################
+install.packages("foreign")
+require(foreign)
+install.packages("questionr")
+require(questionr)
+
+setwd("C://Users//Sala-C15//Desktop//motral")
+cuestionario<-data.frame(read.dbf("motral2012_cuestionario.dbf"))
+empleo<-data.frame(read.dbf("motral2012_empleos.dbf"))
+#Pegado de bases
+folio<-paste(cuestionario$CD_A,cuestionario$ENT,cuestionario$CON,
+             cuestionario$V_SEL,cuestionario$N_HOG,cuestionario$H_MUD,cuestionario$N_REN)
+x<-data.frame(cuestionario,folio)
+
+folio<-paste(empleo$CD_A,empleo$ENT,empleo$CON,empleo$V_SEL,empleo$N_HOG,empleo$H_MUD,empleo$N_REN)
+x1<-data.frame(empleo,folio)
+
+motral<-merge(x,x1,by = "folio",all.x = T,all.y = T)
+##Población Objetivo:
+#Seleccionando asalariados
+motral2012<-subset(motral,as.numeric(as.character(motral$P5))==1)
+wtd.table(motral2012$SEX,weights = motral2012$FAC)
+
+##Precodificar:
+## 1)Grupos de edad (0-9años, 10-19años,.....etc.)
+## 2)Sexo
+## 3)Nivel educativo (Sin istrucción, Primaria, Secumdaria, Preparatoria o Técnico, Universidad o más)
+## 4)Condición de Actividad (Trabaja, Estudia, Jubilado, Quehacer del hogar, Otra condiión)
+
+
+## 1)Grupos de edad
+motral2012$EDA<-as.character(motral2012$EDA)
+class(motral2012$EDA)
+motral2012$EDA1[as.numeric(motral2012$EDA) >= 18 & as.numeric(motral2012$EDA)<= 19] <- 1
+motral2012$EDA1[as.numeric(motral2012$EDA) >= 20 & as.numeric(motral2012$EDA)<= 29] <- 2
+motral2012$EDA1[as.numeric(motral2012$EDA) >= 30 & as.numeric(motral2012$EDA)<= 39] <- 3
+motral2012$EDA1[as.numeric(motral2012$EDA) >= 40 & as.numeric(motral2012$EDA)<= 49] <- 4
+motral2012$EDA1[as.numeric(motral2012$EDA) >= 50] <- 5
+motral2012$EDA1<-as.character(motral2012$EDA1)
+table (motral2012$EDA1,motral2012$EDA)
+
+## 2)Sexo
+table (motral2012$SEX)
+View(motral2012$EDA1)
+
+## 3)Nivel Educativo
+## No tenemos Nivel educativo
+
+## 4)Condición de Actividad (Asalariados y No Asalariados)
+class(motral2012$P5)
+table (motral2012$P51,motral2012$P5)
+
+class(motral2012$P13)
+
+motral2012$P13<-as.numeric(as.character(motral2012$P13))
+
+require(nnet)
+mod1<-multinom(P13~1, data=motral2012, trace=FALSE)
+summary(mod1)
+modfin<-multinom(P13~SEX+EDA1, data=motral2012)
+g<-summary(modfin,cor= F, Wald=T)
+print(g)
+table(motral2012$EDA1)
+## Tabla en LATEX
+install.packages("stargazer")
+library(stargazer)
+help("stargazer")
+s<-stargazer(modfin, type='text', title = "Coefficients", summary = T)
+coef(modfin)
+exp(coef(modfin))##exp(betas)
