@@ -1,0 +1,150 @@
+###################################################################################################
+##################        MODELO DE REGRESIÓN LOGISTICA-->MOTRAL20112         #####################
+###################################################################################################
+install.packages("foreign")
+require(foreign)
+install.packages("questionr")
+require(questionr)
+
+setwd("C://Users//Sala-C15//Desktop//motral")
+cuestionario<-data.frame(read.dbf("motral2012_cuestionario.dbf"))
+empleo<-data.frame(read.dbf("motral2012_empleos.dbf"))
+#Pegado de bases
+folio<-paste(cuestionario$CD_A,cuestionario$ENT,cuestionario$CON,
+             cuestionario$V_SEL,cuestionario$N_HOG,cuestionario$H_MUD,cuestionario$N_REN)
+x<-data.frame(cuestionario,folio)
+
+folio<-paste(empleo$CD_A,empleo$ENT,empleo$CON,empleo$V_SEL,empleo$N_HOG,empleo$H_MUD,empleo$N_REN)
+x1<-data.frame(empleo,folio)
+
+motral<-merge(x,x1,by = "folio",all.x = T,all.y = T)
+##Población Objetivo:
+#Seleccionando asalariados
+motral2012<-subset(motral,as.numeric(as.character(motral$P5))==1)
+wtd.table(motral2012$SEX,weights = motral2012$FAC)
+
+##Precodificar:
+## 1)Grupos de edad (0-9años, 10-19años,.....etc.)
+## 2)Sexo
+## 3)Nivel educativo (Sin istrucción, Primaria, Secumdaria, Preparatoria o Técnico, Universidad o más)
+## 4)Condición de Actividad (Trabaja, Estudia, Jubilado, Quehacer del hogar, Otra condiión)
+
+
+## 1)Grupos de edad
+motral2012$EDA<-as.character(motral2012$EDA)
+class(motral2012$EDA)
+motral2012$EDA1[as.numeric(motral2012$EDA) >= 18 & as.numeric(motral2012$EDA)<= 19] <- 1
+motral2012$EDA1[as.numeric(motral2012$EDA) >= 20 & as.numeric(motral2012$EDA)<= 29] <- 2
+motral2012$EDA1[as.numeric(motral2012$EDA) >= 30 & as.numeric(motral2012$EDA)<= 39] <- 3
+motral2012$EDA1[as.numeric(motral2012$EDA) >= 40 & as.numeric(motral2012$EDA)<= 49] <- 4
+motral2012$EDA1[as.numeric(motral2012$EDA) >= 50] <- 5
+motral2012$EDA1<-as.character(motral2012$EDA1)
+table (motral2012$EDA1,motral2012$EDA)
+
+## 2)Sexo
+table (motral2012$SEX)
+View(motral2012$EDA1)
+
+## 3)Nivel Educativo
+## No tenemos Nivel educativo
+
+## 4)Condición de Actividad (Asalariados y No Asalariados)
+class(motral2012$P5)
+table (motral2012$P51,motral2012$P5)
+
+class(motral2012$P13)
+
+motral2012$P13<-as.numeric(as.character(motral2012$P13))
+## Modelo de Regresión Logistica
+require(nnet)
+mod1<-multinom(P13~1, data=motral2012, trace=FALSE)
+summary(mod1)
+modfin<-multinom(P13~SEX+EDA1, data=motral2012)
+g<-summary(modfin,cor= F, Wald=T)
+print(g)
+table(motral2012$EDA1)
+## Tabla en LATEX
+install.packages("stargazer")
+library(stargazer)
+help("stargazer")
+s<-stargazer(modfin, type='text',apply.coef = exp, apply.se=exp, title = "Coefficients", summary = T)
+coef(modfin)
+exp(coef(modfin))##exp(betas)
+
+
+###############################             INTERPRETACIÓN                ############################
+## Coefficients
+## =============================================
+##   Dependent variable:    
+##   ---------------------------
+##  P13            
+## ---------------------------------------------
+##  SEX2                        0.001           
+##                              (0.038)          
+
+## EDA12                        -0.368***         
+##                              (0.084)          
+
+## EDA13                        0.023           
+##                              (0.086)          
+
+## EDA14                        0.365***          
+##                              (0.088)          
+
+## EDA15                        0.392***          
+##                              (0.104)          
+
+## Constant                     0.092           
+##                              (0.080)          
+
+##---------------------------------------------
+##  Akaike Inf. Crit.         15,976.130         
+##=============================================
+##  Note:             *p<0.1; **p<0.05; ***p<0.01
+
+
+## APLICANDO EXPONENCIAL (NO NOS MARCA NINGUN SIGNIFICATIVO)
+## Coefficients
+##=============================================
+##  Dependent variable:    
+##  ---------------------------
+##  P13            
+##---------------------------------------------
+##  SEX2                         1.001           
+##                               (1.038)          
+
+##EDA12                          0.692           
+##                               (1.088)          
+ 
+##EDA13                          1.023           
+##                               (1.090)          
+
+##EDA14                          1.441           
+##                               (1.092)          
+
+##EDA15                          1.479           
+##                               (1.109)          
+
+##Constant                       1.096           
+##                               (1.083)          
+
+##---------------------------------------------
+##  Akaike Inf. Crit.         15,976.130         
+##=============================================
+##  Note:             *p<0.1; **p<0.05; ***p<0.01
+
+## Nuestra base de datos solo toma en cuenta edades de 18 a 54 años
+
+## Es 1.001 veces más probable que una mujer  no ahorre en comparación a un hombre  
+##  en nuestro análisis esta variable no es significativa
+
+## Es .308 veces menor que las personas  de 20 a 29 años no ahorro en comparación a las personas de
+## menores de 19
+
+## Es 1.441 veces más probable que las personas de 40 a 49 años no ahorre en comparación a las personas de  
+## 18 a 19, en nuestro análisis esta variable es significativa
+
+## Es 1.479 veces más probable que que las personas mayores a 50 años no ahorre en comparación a las personas de  
+## 18 a 19, en nuestro análisis esta variable es significativa
+
+## El grupo de edad de 30 a 39 años no es significativo.
